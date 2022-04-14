@@ -6,9 +6,11 @@ import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
 
 import scala.concurrent.duration.DurationInt
 
-sealed trait PingPong
-case class Pong(replyTo: ActorRef[Ping]) extends PingPong
-case class Ping(replyTo: ActorRef[Pong]) extends PingPong
+enum PingPong:
+  case Pong(replyTo: ActorRef[Ping])
+  case Ping(replyTo: ActorRef[Pong])
+
+import PingPong.*
 
 class PingPonger(context: ActorContext[PingPong], var bounces: Int = 10) extends AbstractBehavior(context) {
   context.log.info(s"Hello. My path is: ${context.self.path}")
@@ -43,7 +45,7 @@ object PingPongMainSimple extends App {
  * - watching children for termination (through signals)
  */
 object PingPongMain extends App {
-  val system = ActorSystem[PingPong](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[PingPong] { ctx =>
     // Child actor creation
     val pingponger = ctx.spawn(Behaviors.setup[PingPong](ctx => new PingPonger(ctx, 5)), "ping-ponger")
     // Watching child
@@ -53,10 +55,9 @@ object PingPongMain extends App {
       pingponger ! msg
       Behaviors.same
     }).receiveSignal {
-      case (ctx, t@Terminated(_)) => {
+      case (ctx, t@Terminated(_)) =>
         ctx.log.info("PingPonger terminated. Shutting down")
         Behaviors.stopped // Or Behaviors.same to continue
-      }
     }
   }, "ping-pong")
   system.log.info(s"System root path: ${system.path.root}")

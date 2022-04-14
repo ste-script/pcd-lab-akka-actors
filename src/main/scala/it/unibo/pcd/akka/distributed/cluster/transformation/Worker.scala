@@ -7,6 +7,8 @@ import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.pcd.akka.distributed.cluster.CborSerializable
 
+import akka.serialization._
+
 //#worker
 object Worker {
 
@@ -29,4 +31,3 @@ object Worker {
       }
     }
 }
-//#worker

@@ -5,8 +5,9 @@ import akka.actor.typed.scaladsl.Behaviors
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import it.unibo.pcd.akka.basics.e02oopstyle._
-import it.unibo.pcd.akka.basics.e03state.GuessGame._
+import it.unibo.pcd.akka.basics.e02oopstyle.*
+import it.unibo.pcd.akka.basics.e03state.GuessGame.*
+import PingPong.*
 
 class AsyncTesting
   extends AnyWordSpec with Matchers with BeforeAndAfterAll {

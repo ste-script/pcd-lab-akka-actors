@@ -46,7 +46,7 @@ object Actors {
   })
 
   def startSystem(b: () => Behavior[Int]): Unit = {
-    val system = ActorSystem[Int](Behaviors.setup(ctx => {
+    val system = ActorSystem(Behaviors.setup[Int](ctx => {
       for(i <- 1 to 20) {
         ctx.log.info(s"Spawned actors for $i")
         ctx.spawn(b(), s"blocking-actor-${i}") ! i

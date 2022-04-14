@@ -85,7 +85,7 @@ object GuessGame {
 object GuessNumberMain extends App {
   case object StartPlay
 
-  val system = ActorSystem[StartPlay.type](Behaviors.receive { (context, _) =>
+  val system = ActorSystem(Behaviors.receive[StartPlay.type] { (context, _) =>
     context.log.info("Starting a game.")
     val game = context.spawn(GuessGame.game(scala.util.Random.nextInt(100), numberOfAttempts = 5), "guess-listener")
     val player = context.spawn(

@@ -7,13 +7,12 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
-
+import it.unibo.pcd.akka.distributed.cluster.transformation.Worker
 import scala.util.Failure
 import scala.util.Success
 
 //#frontend
 object Frontend {
-
   sealed trait Event
   private case object Tick extends Event
   private final case class WorkersUpdated(newWorkers: Set[ActorRef[Worker.TransformText]]) extends Event
@@ -53,8 +52,9 @@ object Frontend {
               ctx.log.info("Sending work for processing to {}", selectedWorker)
               val text = s"hello-$jobCounter"
               // Ask pattern: ask `selectedWorker` to perform request specified in second argument (through a function of the actor that will receive the response)
-              ctx.ask(selectedWorker, Worker.TransformText(text, _)) { // we map the Try[Res] to a message this actor understands
-                case Success(transformedText) => TransformCompleted(transformedText.text, text)
+              ctx.ask[Worker.TransformText, Worker.TextTransformed](selectedWorker, Worker.TransformText(text, _)) { // we map the Try[Res] to a message this actor understands
+                case Success(transformedText) =>
+                  TransformCompleted(transformedText.text, text)
                 case Failure(ex) => JobFailed("Processing timed out", text)
               }
               if(jobCounter==5) timers.cancelAll()

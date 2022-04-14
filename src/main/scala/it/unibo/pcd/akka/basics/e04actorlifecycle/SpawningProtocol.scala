@@ -8,9 +8,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
 object SpawningProtocol extends App {
-  case object Ping; case object Pong
+  case object Ping
+  case object Pong
 
-  val system = ActorSystem[SpawnProtocol.Command](Behaviors.setup(_ => SpawnProtocol()), "myroot")
+  val system = ActorSystem(Behaviors.setup[SpawnProtocol.Command](_ => SpawnProtocol()), "myroot")
 
   import akka.actor.typed.scaladsl.AskPattern._
   implicit val ec: ExecutionContext = system.executionContext

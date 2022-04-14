@@ -32,7 +32,7 @@ object SupervisionExampleStop extends App {
 }
 
 object SupervisionExampleParent extends App {
-  val system = ActorSystem[String](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[String] { ctx =>
     val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
     Behaviors.receiveMessage { msg =>
       child ! msg
@@ -43,7 +43,7 @@ object SupervisionExampleParent extends App {
 }
 
 object SupervisionExampleParentWatching extends App {
-  val system = ActorSystem[String](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[String] { ctx =>
     val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
     ctx.watch(child) // watching child (if Terminated not handled => dead pact)
     Behaviors.receiveMessage[String] { msg =>
@@ -55,7 +55,7 @@ object SupervisionExampleParentWatching extends App {
 }
 
 object SupervisionExampleParentWatchingHandled extends App {
-  val system = ActorSystem[String](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[String] { ctx =>
     val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
     ctx.watch(child)
     Behaviors.receiveMessage[String] { msg =>

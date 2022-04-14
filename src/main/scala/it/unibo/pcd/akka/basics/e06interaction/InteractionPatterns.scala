@@ -23,7 +23,7 @@ object HelloBehavior {
 object InteractionPatternsAsk extends App {
   import HelloBehavior._
 
-  val system = ActorSystem[Greeted](Behaviors.setup{ ctx =>
+  val system = ActorSystem(Behaviors.setup[Greeted]{ ctx =>
     val greeter = ctx.spawnAnonymous(HelloBehavior())
     implicit val timeout: Timeout = 2.seconds
     implicit val scheduler = ctx.system.scheduler
@@ -40,7 +40,7 @@ object InteractionPatternsAsk extends App {
 object InteractionPatternsPipeToSelf extends App {
   import HelloBehavior._
 
-  val system = ActorSystem[Greeted](Behaviors.setup{ ctx =>
+  val system = ActorSystem(Behaviors.setup[Greeted]{ ctx =>
     val greeter = ctx.spawn(HelloBehavior(), "greeter")
     implicit val timeout: Timeout = 2.seconds
     implicit val scheduler = ctx.system.scheduler
@@ -55,7 +55,7 @@ object InteractionPatternsPipeToSelf extends App {
 }
 
 object InteractionPatternsSelfMessage extends App {
-  val system = ActorSystem[String](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[String] { ctx =>
     Behaviors.withTimers { timers =>
       Behaviors.receiveMessage {
         case "" => Behaviors.stopped
@@ -71,7 +71,7 @@ object InteractionPatternsSelfMessage extends App {
 }
 
 object InteractionPatternsMsgAdapter extends App {
-  val system = ActorSystem[String](Behaviors.setup { ctx =>
+  val system = ActorSystem(Behaviors.setup[String] { ctx =>
     val adaptedRef: ActorRef[Int] = ctx.messageAdapter[Int](i => if(i==0) "" else i.toString)
     adaptedRef ! 130
     adaptedRef ! 0
