@@ -9,8 +9,7 @@ import it.unibo.pcd.akka.basics.e02oopstyle.*
 import it.unibo.pcd.akka.basics.e03state.GuessGame.*
 import PingPong.*
 
-class AsyncTesting
-  extends AnyWordSpec with Matchers with BeforeAndAfterAll {
+class AsyncTesting extends AnyWordSpec with Matchers with BeforeAndAfterAll:
   val testKit = ActorTestKit() // creates an actor system (one per a set of tests)
 
   // Shutdown the actor system after all the tests
@@ -37,21 +36,20 @@ class AsyncTesting
 
       val gameRef = testKit.spawn(game(SECRET, NUM_ATTEMPTS))
       val playerProbe = testKit.createTestProbe[PlayerMessage]()
-      val playerMockBehavior = Behaviors.receiveMessage[PlayerMessage]{
+      val playerMockBehavior = Behaviors.receiveMessage[PlayerMessage] {
         case NewInput =>
           gameRef ! Guess(BAD_GUESS, playerProbe.ref)
           Behaviors.same
         case _ => Behaviors.ignore
       }
       val playerMock = testKit.spawn(Behaviors.monitor(playerProbe.ref, playerMockBehavior))
-      for(i <- 0 until NUM_ATTEMPTS - 1) {
+      for (i <- 0 until NUM_ATTEMPTS - 1) do
         playerMock ! NewInput
         playerProbe.expectMessage(NewInput)
         playerProbe.expectMessage(NotGuessed(TooSmall(BAD_GUESS), NUM_ATTEMPTS - 1 - i))
-      }
+
       playerMock ! NewInput
       playerProbe.expectMessage(NewInput)
       playerProbe.expectMessageType[Loss.type]
     }
   }
-}

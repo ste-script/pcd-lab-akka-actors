@@ -11,8 +11,9 @@ import akka.cluster.typed.ClusterSingleton
 import akka.cluster.typed.ClusterSingletonSettings
 import akka.cluster.typed.SingletonActor
 import com.typesafe.config.ConfigFactory
+import it.unibo.pcd.akka.distributed.cluster.stats.AppOneMaster.startup
 
-object AppOneMaster {
+object AppOneMaster:
 
   val WorkerServiceKey = ServiceKey[StatsWorker.Process]("Worker")
 
@@ -59,19 +60,7 @@ object AppOneMaster {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    if (args.isEmpty) {
-      startup("compute", 25251)
-      startup("compute", 25252)
-      startup("compute", 0)
-      startup("client", 0)
-    } else {
-      require(args.size == 2, "Usage: role port")
-      startup(args(0), args(1).toInt)
-    }
-  }
-
-  def startup(role: String, port: Int): Unit = {
+  def startup(role: String, port: Int): Unit =
     // Override the configuration of the port when specified as program argument
     val config = ConfigFactory
       .parseString(s"""
@@ -81,6 +70,14 @@ object AppOneMaster {
       .withFallback(ConfigFactory.load("stats"))
 
     ActorSystem[Nothing](RootBehavior(), "ClusterSystem", config)
-  }
 
-}
+  def main(args: Array[String]): Unit =
+    if (args.isEmpty) {
+      startup("compute", 25251)
+      startup("compute", 25252)
+      startup("compute", 0)
+      startup("client", 0)
+    } else {
+      require(args.size == 2, "Usage: role port")
+      startup(args(0), args(1).toInt)
+    }

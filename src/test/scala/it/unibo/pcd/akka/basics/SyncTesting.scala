@@ -6,18 +6,20 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import org.scalatest.funsuite.AnyFunSuite
 
-object ActorUnderTest {
-  sealed trait Command
-  object SpawnChild extends Command
-  object SpawnChildAnonymous extends Command
-  object SayHelloToChild extends Command
-  object SayHelloToAnonymousChild extends Command
-  case class Ping(replyTo: ActorRef[Pong.type]) extends Command
+object ActorUnderTest:
+  enum Response:
+    case Pong
+  import Response.*
 
-  sealed trait Response
-  object Pong extends Response
+  enum Command:
+    case SpawnChild
+    case SpawnChildAnonymous
+    case SayHelloToChild
+    case SayHelloToAnonymousChild
+    case Ping(replyTo: ActorRef[Pong.type])
+  import Command.*
 
-  val child = Behaviors.receiveMessage[Any] { _ => Behaviors.same }
+  val child = Behaviors.receiveMessage[Any](_ => Behaviors.same)
 
   def apply(): Behavior[Command] = Behaviors.receive {
     case (ctx, SpawnChild) =>
@@ -36,10 +38,11 @@ object ActorUnderTest {
       ctx.spawnAnonymous(child) ! "hello"
       Behaviors.same
   }
-}
 
-class SyncTesting extends AnyFunSuite {
-  import ActorUnderTest._
+class SyncTesting extends AnyFunSuite:
+  import ActorUnderTest.*
+  import Response.*
+  import Command.*
 
   test("Child actor spawning") {
     val testKit = BehaviorTestKit(ActorUnderTest())
@@ -70,4 +73,3 @@ class SyncTesting extends AnyFunSuite {
     val achildInbox = testKit.childInbox(child.ref)
     achildInbox.expectMessage("hello")
   }
-}

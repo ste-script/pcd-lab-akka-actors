@@ -5,9 +5,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.typed.Cluster
 import com.typesafe.config.ConfigFactory
 
-object App {
-
-  object RootBehavior {
+object App:
+  object RootBehavior:
     def apply(): Behavior[Nothing] = Behaviors.setup[Nothing] { ctx =>
       val cluster = Cluster(ctx.system)
 
@@ -24,9 +23,19 @@ object App {
       }
       Behaviors.empty
     }
-  }
 
-  def main(args: Array[String]): Unit = {
+  def startup(role: String, port: Int): Unit =
+    // Override the configuration of the port and role
+    val config = ConfigFactory
+      .parseString(s"""
+        akka.remote.artery.canonical.port=$port
+        akka.cluster.roles = [$role]
+        """)
+      .withFallback(ConfigFactory.load("transformation"))
+
+    ActorSystem[Nothing](RootBehavior(), "ClusterSystem", config)
+
+  def main(args: Array[String]): Unit =
     // starting 2 frontend nodes and 3 backend nodes
     if (args.isEmpty) {
       startup("backend", 25251)
@@ -38,19 +47,3 @@ object App {
       require(args.length == 2, "Usage: role port")
       startup(args(0), args(1).toInt)
     }
-  }
-
-  def startup(role: String, port: Int): Unit = {
-    // Override the configuration of the port and role
-    val config = ConfigFactory
-      .parseString(s"""
-        akka.remote.artery.canonical.port=$port
-        akka.cluster.roles = [$role]
-        """)
-      .withFallback(ConfigFactory.load("transformation"))
-
-    ActorSystem[Nothing](RootBehavior(), "ClusterSystem", config)
-
-  }
-
-}

@@ -9,12 +9,10 @@ import it.unibo.pcd.akka.distributed.cluster.CborSerializable
 import scala.concurrent.duration._
 
 //#worker
-object StatsWorker {
+object StatsWorker:
 
   trait Command
-  final case class Process(word: String, replyTo: ActorRef[Processed])
-      extends Command
-      with CborSerializable
+  final case class Process(word: String, replyTo: ActorRef[Processed]) extends Command with CborSerializable
   private case object EvictCache extends Command
 
   final case class Processed(word: String, length: Int) extends CborSerializable
@@ -28,8 +26,7 @@ object StatsWorker {
     }
   }
 
-  private def withCache(ctx: ActorContext[Command],
-                        cache: Map[String, Int]): Behavior[Command] =
+  private def withCache(ctx: ActorContext[Command], cache: Map[String, Int]): Behavior[Command] =
     Behaviors.receiveMessage {
       case Process(word, replyTo) =>
         ctx.log.info(s"Worker ${ctx.self.path.toStringWithAddress(ctx.system.address)} processing request [{}]", word)
@@ -46,5 +43,4 @@ object StatsWorker {
       case EvictCache =>
         withCache(ctx, Map.empty)
     }
-}
 //#worker

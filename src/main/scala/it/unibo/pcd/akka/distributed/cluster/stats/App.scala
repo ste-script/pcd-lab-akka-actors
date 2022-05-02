@@ -8,12 +8,13 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.Routers
 import akka.cluster.typed.Cluster
 import com.typesafe.config.ConfigFactory
+import it.unibo.pcd.akka.distributed.cluster.stats.App.startup
 
-object App {
+object App:
 
   val StatsServiceKey = ServiceKey[StatsService.ProcessText]("StatsService")
 
-  private object RootBehavior {
+  private object RootBehavior:
     def apply(): Behavior[Nothing] = Behaviors.setup[Nothing] { ctx =>
       val cluster = Cluster(ctx.system)
       if (cluster.selfMember.hasRole("compute")) {
@@ -34,28 +35,15 @@ object App {
         ctx.system.receptionist ! Receptionist
           .Register(StatsServiceKey, service)
       }
-      if (cluster.selfMember.hasRole(("client"))) {
+      if (cluster.selfMember.hasRole("client")) {
         val serviceRouter =
           ctx.spawn(Routers.group(App.StatsServiceKey), "ServiceRouter")
         ctx.spawn(StatsClient(serviceRouter), "Client")
       }
       Behaviors.empty[Nothing]
     }
-  }
 
-  def main(args: Array[String]): Unit = {
-    if (args.isEmpty) {
-      startup("compute", 25251)
-      startup("compute", 25252)
-      startup("compute", 0)
-      startup("client", 0)
-    } else {
-      require(args.size == 2, "Usage: role port")
-      startup(args(0), args(1).toInt)
-    }
-  }
-
-  private def startup(role: String, port: Int): Unit = {
+  private def startup(role: String, port: Int): Unit =
 
     // Override the configuration of the port when specified as program argument
     val config = ConfigFactory
@@ -66,5 +54,14 @@ object App {
       .withFallback(ConfigFactory.load("stats"))
 
     ActorSystem[Nothing](RootBehavior(), "ClusterSystem", config)
-  }
-}
+
+  def main(args: Array[String]): Unit =
+    if (args.isEmpty) {
+      startup("compute", 25251)
+      startup("compute", 25252)
+      startup("compute", 0)
+      startup("client", 0)
+    } else {
+      require(args.size == 2, "Usage: role port")
+      startup(args(0), args(1).toInt)
+    }

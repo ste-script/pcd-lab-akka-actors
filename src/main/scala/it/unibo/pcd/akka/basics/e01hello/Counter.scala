@@ -4,40 +4,39 @@ import akka.actor.typed.{ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import Counter.Command.*
 import Counter.*
-object Counter {
+
+object Counter:
   enum Command:
     case Tick
-  def apply(from: Int, to: Int): Behavior[Command] = Behaviors.receive { (context: ActorContext[_], msg) => msg match {
-    case Tick if from != to => {
-      context.log.info(s"Count: ${from}")
-      Counter(from - from.compareTo(to), to)
+
+  def apply(from: Int, to: Int): Behavior[Command] = Behaviors.receive { (context: ActorContext[_], msg) =>
+    msg match {
+      case Tick if from != to =>
+        context.log.info(s"Count: $from")
+        Counter(from - from.compareTo(to), to)
+      case _ => Behaviors.stopped
     }
-    case _ => Behaviors.stopped
-  } }
+  }
 
   def apply(to: Int): Behavior[Command] =
     Behaviors.setup(new Counter(_, 0, to))
-}
 
-class Counter(context: ActorContext[Counter.Command], var from: Int, val to: Int) extends AbstractBehavior[Counter.Command](context) {
+class Counter(context: ActorContext[Counter.Command], var from: Int, val to: Int)
+    extends AbstractBehavior[Counter.Command](context):
   override def onMessage(msg: Counter.Command): Behavior[Counter.Command] = msg match {
-    case Tick if from != to => {
-      context.log.info(s"Count: ${from}")
+    case Tick if from != to =>
+      context.log.info(s"Count: $from")
       from -= from.compareTo(to)
       this
-    }
     case _ => Behaviors.stopped
   }
-}
 
-object CounterAppFunctional extends App {
-  import Counter._
+object CounterAppFunctional extends App:
+  import Counter.*
 
-  val system = ActorSystem[Command](Counter(0,2), "counter")
-  for(i <- 0 to 2) system ! Tick
-}
+  val system = ActorSystem[Command](Counter(0, 2), "counter")
+  for (i <- 0 to 2) system ! Tick
 
-object CounterAppOOP extends App {
+object CounterAppOOP extends App:
   val system = ActorSystem[Counter.Command](Counter(2), "counter")
-  for(i <- 0 to 2) system ! Tick
-}
+  for (i <- 0 to 2) system ! Tick

@@ -10,11 +10,13 @@ import akka.actor.typed.scaladsl.Behaviors
 import scala.concurrent.duration._
 import scala.util.Random
 
-object StatsClient {
+object StatsClient:
 
-  sealed trait Event
-  private case object Tick extends Event
-  private case class ServiceResponse(result: StatsService.Response) extends Event
+  enum Event:
+    case Tick
+    case ServiceResponse(result: StatsService.Response)
+
+  import Event.*
 
   def apply(service: ActorRef[StatsService.ProcessText]): Behavior[Event] =
     Behaviors.setup { ctx =>
@@ -24,9 +26,12 @@ object StatsClient {
 
         Behaviors.receiveMessage {
           case Tick =>
-            val text = Random.shuffle("this is the text that will be analyzed".split(" ").toList).take(1 + Random.nextInt(10)).mkString(" ")
+            val text = Random
+              .shuffle("this is the text that will be analyzed".split(" ").toList)
+              .take(1 + Random.nextInt(10))
+              .mkString(" ")
             val req = StatsService.ProcessText(text, responseAdapter)
-            ctx.log.info(s"Sending process request ${req}")
+            ctx.log.info(s"Sending process request $req")
             service ! req
             Behaviors.same
           case ServiceResponse(result) =>
@@ -35,6 +40,3 @@ object StatsClient {
         }
       }
     }
-
-}
-
