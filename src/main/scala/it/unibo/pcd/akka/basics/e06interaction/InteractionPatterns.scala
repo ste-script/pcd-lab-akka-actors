@@ -12,7 +12,6 @@ import scala.util.Success
 object HelloBehavior:
   final case class Greet(whom: String, replyTo: ActorRef[Greeted])
   final case class Greeted(whom: String, from: ActorRef[Greet])
-
   def apply(): Behavior[Greet] = Behaviors.receive { (context, message) =>
     context.log.info("Hello {}!", message.whom)
     message.replyTo ! Greeted(message.whom, context.self)
@@ -27,8 +26,8 @@ object InteractionPatternsAsk extends App:
       val greeter = ctx.spawnAnonymous(HelloBehavior())
       given Timeout = 2.seconds
       given Scheduler = ctx.system.scheduler
-      val f: Future[Greeted] = greeter ? (replyTo => Greet("Bob", replyTo))
       given ExecutionContext = ctx.executionContext
+      val f: Future[Greeted] = greeter ? (replyTo => Greet("Bob", replyTo))
       f.onComplete {
         case Success(Greeted(who, from)) => println(s"$who has been greeted by ${from.path}!")
         case _ => println("No greet")

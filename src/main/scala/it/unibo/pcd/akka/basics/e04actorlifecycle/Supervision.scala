@@ -12,6 +12,7 @@ object SupervisedActor:
     case (ctx, "fail") => throw new RuntimeException("Just fail")
     case (ctx, "quit") =>
       ctx.log.info("Quitting")
+      ctx.log.info(s"Bye!! $prefix")
       Behaviors.stopped
     case (ctx, s) =>
       ctx.log.info(s"Got ${prefix + s}")

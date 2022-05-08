@@ -177,17 +177,17 @@ class Hakker(
 end Hakker
 
 object DiningHakkers:
-
+  val totalChopsticks = 5
   def apply(): Behavior[NotUsed] = Behaviors.setup { context =>
     // Create 5 chopsticks
     val chopsticks =
-      for (i <- 1 to 5)
+      for (i <- 1 to totalChopsticks)
         yield context.spawn(Chopstick(), "Chopstick" + i)
 
     // Create 5 awesome hakkers and assign them their left and right chopstick
     val hakkers = for {
       (name, i) <- List("Ghosh", "Boner", "Klang", "Krasser", "Manie").zipWithIndex
-    } yield context.spawn(Hakker(name, chopsticks(i), chopsticks((i + 1) % 5)), name)
+    } yield context.spawn(Hakker(name, chopsticks(i), chopsticks((i + 1) % totalChopsticks)), name)
 
     // Signal all hakkers that they should start thinking, and watch the show
     hakkers.foreach(_ ! Hakker.Think)

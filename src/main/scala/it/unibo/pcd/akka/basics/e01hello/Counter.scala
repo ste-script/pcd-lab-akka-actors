@@ -1,11 +1,12 @@
 package it.unibo.pcd.akka.basics.e01hello
 
-import akka.actor.typed.{ActorSystem, Behavior}
+import akka.actor.typed.{ActorSystem, Behavior, Signal}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import Counter.*
 
+// "Actor" module definition
 object Counter:
-  enum Command:
+  enum Command: // APIs i.e. message that actors should received / send
     case Tick
   export Command.*
   def apply(from: Int, to: Int): Behavior[Command] =
@@ -17,7 +18,6 @@ object Counter:
         case _ => Behaviors.stopped
       }
     }
-
   def apply(to: Int): Behavior[Command] =
     Behaviors.setup(new Counter(_, 0, to))
 
@@ -30,6 +30,8 @@ class Counter(context: ActorContext[Counter.Command], var from: Int, val to: Int
       this
     case _ => Behaviors.stopped
   }
+
+  override def onSignal: PartialFunction[Signal, Behavior[Command]] = super.onSignal
 
 @main def functionalApi: Unit =
   val system = ActorSystem[Command](Counter(0, 2), "counter")

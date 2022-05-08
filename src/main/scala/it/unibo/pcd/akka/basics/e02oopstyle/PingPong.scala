@@ -43,7 +43,7 @@ object PingPongMainSimple extends App:
 object PingPongMain extends App:
   val system = ActorSystem(
     Behaviors.setup[PingPong] { ctx =>
-      // Child actor creation
+      // Csystemhild actor creation
       val pingponger = ctx.spawn(Behaviors.setup[PingPong](ctx => new PingPonger(ctx, 5)), "ping-ponger")
       // Watching child
       ctx.watch(pingponger)

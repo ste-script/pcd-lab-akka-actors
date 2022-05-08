@@ -9,8 +9,8 @@ import scala.io.StdIn.readLine
 
 object GuessGame:
   final case class Guess(number: Int, replyTo: ActorRef[GuessOutcome])
-  sealed trait PlayerMessage
 
+  sealed trait PlayerMessage
   case object NewInput extends PlayerMessage
   enum GuessOutcome extends PlayerMessage:
     case Guessed
