@@ -3,10 +3,12 @@ package it.unibo.pcd.akka.basics.e01hello
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 
+// "Actor" module definition
 object HelloBehavior:
+  // "API", i.e. message that actors should received / send
   final case class Greet(whom: String, replyTo: ActorRef[Greeted])
   final case class Greeted(whom: String, from: ActorRef[Greet])
-
+  // Behaviour factory, i.e how the actor react to messages
   def apply(): Behavior[Greet] = Behaviors.receive { (context, message) =>
     context.log.info("Hello {}!", message.whom)
     message.replyTo ! Greeted(message.whom, context.self)
