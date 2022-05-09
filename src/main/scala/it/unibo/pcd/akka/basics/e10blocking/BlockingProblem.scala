@@ -9,19 +9,19 @@ import scala.concurrent.ExecutionContext
 
 object BlockingProblem:
   def apply(i: Int): Behavior[String] = Behaviors.receive { case (ctx, any) =>
-    ctx.log.info(s"actors $i")
+    println(s"actors $i")
     Thread.sleep(5000)
     Behaviors.same
   }
   def usingFuture(i: Int): Behavior[String] = Behaviors.receive { case (ctx, any) =>
     given ExecutionContext = ctx.executionContext
-    Future { Thread.sleep(5000); ctx.log.info(s"done $i") }
+    Future { Thread.sleep(5000); println(s"done $i") }
     ctx.log.info(s"actors $i")
     Behaviors.same
   }
   def usingDispatcher(i: Int, dispatcher: String): Behavior[String] = Behaviors.receive { case (ctx, any) =>
     given ExecutionContext = ctx.system.dispatchers.lookup(DispatcherSelector.fromConfig(dispatcher))
-    Future { Thread.sleep(5000); ctx.log.info(s"done $i") }
+    Future { Thread.sleep(5000); println(s"done $i") }
     ctx.log.info(s"actors $i")
     Behaviors.same
   }
@@ -37,7 +37,7 @@ object Spawner:
 @main def problem: Unit =
   val spawner = ActorSystem.create(Spawner(BlockingProblem.usingFuture), "slow")
   spawner ! "spawn"
-  Thread.sleep(500)
+  Thread.sleep(1000)
   spawner ! "spawn"
 
 @main def solution: Unit =
