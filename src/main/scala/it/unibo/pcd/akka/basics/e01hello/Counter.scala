@@ -30,9 +30,6 @@ class Counter(context: ActorContext[Counter.Command], var from: Int, val to: Int
       this
     case _ => Behaviors.stopped
   }
-
-  override def onSignal: PartialFunction[Signal, Behavior[Command]] = super.onSignal
-
 @main def functionalApi: Unit =
   val system = ActorSystem[Command](Counter(0, 2), "counter")
   for (i <- 0 to 2) system ! Tick
