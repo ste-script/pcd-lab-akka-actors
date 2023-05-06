@@ -1,3 +1,3 @@
 # pcd-lab-akka-actors
 
-Examples on Akka Actor Typed
+Examples of Akka Actor Typed
