@@ -21,14 +21,13 @@ class PingPonger(context: ActorContext[PingPong], var bounces: Int = 10) extends
       context.log.info("I got tired of pingpong-ing. Bye bye.")
       Behaviors.stopped
     } else {
-      msg match {
+      msg match
         case Pong(replyTo) =>
           context.log.info("Pong")
           context.scheduleOnce(1.second, replyTo, Ping(context.self))
         case Ping(replyTo) =>
           context.log.info("Ping")
           context.scheduleOnce(1.second, replyTo, Pong(context.self))
-      }
       this
     }
 
@@ -43,7 +42,7 @@ object PingPongMainSimple extends App:
 object PingPongMain extends App:
   val system = ActorSystem(
     Behaviors.setup[PingPong] { ctx =>
-      // Csystemhild actor creation
+      // Child actor creation
       val pingponger = ctx.spawn(Behaviors.setup[PingPong](ctx => new PingPonger(ctx, 5)), "ping-ponger")
       // Watching child
       ctx.watch(pingponger)

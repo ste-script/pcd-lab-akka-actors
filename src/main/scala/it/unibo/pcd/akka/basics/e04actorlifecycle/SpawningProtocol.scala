@@ -7,7 +7,7 @@ import akka.util.Timeout
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
-object SpawningProtocol extends App {
+object SpawningProtocol extends App:
   case object Ping
   case object Pong
 
@@ -23,5 +23,3 @@ object SpawningProtocol extends App {
   }
   val ponger: Future[ActorRef[Ping.type]] = system.ask(SpawnProtocol.Spawn(pongerBehavior, "ponger", Props.empty, _))
   for (pongerRef <- ponger) pongerRef ! Ping
-
-}

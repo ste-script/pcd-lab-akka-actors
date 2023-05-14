@@ -11,13 +11,14 @@ object Counter:
   export Command.*
   def apply(from: Int, to: Int): Behavior[Command] =
     Behaviors.receive { (context, msg) =>
-      msg match {
+      msg match
         case Tick if from != to =>
           context.log.info(s"Count: $from")
           Counter(from - from.compareTo(to), to)
         case _ => Behaviors.stopped
-      }
     }
+
+  // OOP style
   def apply(to: Int): Behavior[Command] =
     Behaviors.setup(new Counter(_, 0, to))
 
@@ -31,9 +32,9 @@ class Counter(context: ActorContext[Counter.Command], var from: Int, val to: Int
     case _ => Behaviors.stopped
   }
 @main def functionalApi: Unit =
-  val system = ActorSystem[Command](Counter(0, 2), "counter")
-  for (i <- 0 to 2) system ! Tick
+  val system = ActorSystem[Command](guardianBehavior = Counter(0, 2), name = "counter")
+  for (_ <- 0 to 2) system ! Tick
 
 @main def OOPApi: Unit =
   val system = ActorSystem[Counter.Command](Counter(2), "counter")
-  for (i <- 0 to 2) system ! Tick
+  for (_ <- 0 to 2) system ! Tick

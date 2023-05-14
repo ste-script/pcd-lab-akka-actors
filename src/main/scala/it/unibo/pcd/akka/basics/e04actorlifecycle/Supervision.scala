@@ -75,4 +75,5 @@ object SupervisionExampleParentWatchingHandled extends App:
     },
     "supervision"
   )
+
   for (cmd <- List("foo", "bar", "fail", "!!!", "fail", "quit")) system ! cmd

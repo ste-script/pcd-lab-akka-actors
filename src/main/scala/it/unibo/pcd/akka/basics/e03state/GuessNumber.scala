@@ -26,27 +26,25 @@ object GuessGame:
   object game:
     def apply(numberToGuess: Int, numberOfAttempts: Int = 10): Behavior[Guess] = Behaviors.receive {
       (context, msg: Guess) =>
-        if (msg.number == numberToGuess) {
+        if (msg.number == numberToGuess)
           context.log.info(s"You guessed correctly my secret: $numberToGuess. Game ends here.")
           msg.replyTo ! Guessed
           Behaviors.stopped
-        } else {
+        else
           context.log.info(s"Your guess is too ${if (msg.number < numberToGuess) "small" else "big"}.")
           val remainingAttempts = numberOfAttempts - 1
           msg.replyTo ! (
-            if (remainingAttempts <= 0) Loss
+            if remainingAttempts <= 0 then Loss
             else
               NotGuessed(
                 if (msg.number < numberToGuess) TooSmall(msg.number) else TooBig(msg.number),
                 remainingAttempts
               )
           )
-          if (numberOfAttempts - 1 > 0) game(numberToGuess, remainingAttempts)
-          else {
+          if numberOfAttempts - 1 > 0 then game(numberToGuess, remainingAttempts)
+          else
             context.log.info("You finished your attempts. Game ends here.")
             Behaviors.stopped
-          }
-        }
     }
 
   object player:
@@ -55,7 +53,7 @@ object GuessGame:
         guessLogic: Seq[Hint] => Int,
         hints: Seq[Hint] = Seq.empty
     ): Behavior[PlayerMessage] = Behaviors.receive[PlayerMessage] { (context, msg) =>
-      msg match {
+      msg match
         case NewInput =>
           val guess = guessLogic(hints)
           context.log.info(s"Trying with $guess")
@@ -68,7 +66,6 @@ object GuessGame:
           context.log.info(s"$hint.. Ouch! But I still have $remainingAttempts attempts..")
           context.self ! NewInput
           player(game, guessLogic, hints :+ hint)
-      }
     }
 
   def humanPlayer(game: ActorRef[Guess]): Behavior[PlayerMessage] =
@@ -87,13 +84,12 @@ object GuessGame:
     scala.util.Random.setSeed(seed)
     player(
       game,
-      hints => {
+      hints =>
         hints.lastOption.foreach {
           case TooSmall(attempt) => bounds = BoundedInterval(Math.max(bounds.lb, attempt + 1), bounds.ub)
           case TooBig(attempt) => bounds = BoundedInterval(bounds.lb, Math.min(bounds.ub, attempt - 1))
         }
         bounds.lb + scala.util.Random.nextInt(bounds.ub - bounds.lb + 1)
-      }
     )
 end GuessGame
 
