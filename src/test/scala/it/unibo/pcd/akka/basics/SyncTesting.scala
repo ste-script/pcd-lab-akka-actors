@@ -47,16 +47,16 @@ class SyncTesting extends AnyFunSuite:
   test("Child actor spawning") {
     val testKit = BehaviorTestKit(ActorUnderTest())
     testKit.run(SpawnChild)
-    testKit.expectEffect(Effect.Spawned(child, "child"))
+    testKit expectEffect Effect.Spawned(child, "child")
     testKit.run(SpawnChildAnonymous)
-    testKit.expectEffect(Effect.SpawnedAnonymous(child))
+    testKit expectEffect Effect.SpawnedAnonymous(child)
   }
 
   test("Sending messages to another actor") {
     val testKit = BehaviorTestKit(ActorUnderTest())
     val inbox = TestInbox[Pong.type]()
     testKit.run(Ping(inbox.ref))
-    inbox.expectMessage(Pong)
+    inbox expectMessage Pong
   }
 
   test("Sending messages to child") {
@@ -64,12 +64,12 @@ class SyncTesting extends AnyFunSuite:
     testKit.run(SpawnChild)
     val childInbox = testKit.childInbox[String]("child")
     testKit.run(SayHelloToChild)
-    childInbox.expectMessage("hello")
+    childInbox expectMessage "hello"
 
     // For anonymous children the actor names are generated in a deterministic way:
     testKit.run(SayHelloToAnonymousChild)
     testKit.expectEffectType[Effect.Spawned[String]] // must consume old effect
     val child: Effect.SpawnedAnonymous[String] = testKit.expectEffectType[Effect.SpawnedAnonymous[String]]
     val achildInbox = testKit.childInbox(child.ref)
-    achildInbox.expectMessage("hello")
+    achildInbox expectMessage "hello"
   }

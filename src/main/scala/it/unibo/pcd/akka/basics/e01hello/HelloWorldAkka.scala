@@ -4,7 +4,7 @@ import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 
 // "Actor" module definition
-object HelloBehavior:
+object HelloActor:
   // "API", i.e. message that actors should received / send
   final case class Greet(whom: String, replyTo: ActorRef[Greeted])
   final case class Greeted(whom: String, from: ActorRef[Greet])
@@ -16,7 +16,7 @@ object HelloBehavior:
   }
 
 object HelloWorldAkkaTyped extends App:
-  val system: ActorSystem[HelloBehavior.Greet] = ActorSystem(HelloBehavior(), name = "hello-world")
-  system ! HelloBehavior.Greet("Akka Typed", system.ignoreRef)
+  val system: ActorSystem[HelloActor.Greet] = ActorSystem(HelloActor(), name = "hello-world")
+  system ! HelloActor.Greet("Akka Typed", system.ignoreRef)
   Thread.sleep(5000)
   system.terminate()

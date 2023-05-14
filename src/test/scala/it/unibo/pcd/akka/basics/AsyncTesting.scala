@@ -22,11 +22,11 @@ class AsyncTesting extends AnyWordSpec with Matchers with BeforeAndAfterAll:
 
       testKit.system.log.info("Sending ping")
       pinger ! Ping(probe.ref)
-      probe.expectMessage(Pong(pinger.ref))
+      probe expectMessage Pong(pinger.ref)
 
       testKit.system.log.info("Sending pong")
       pinger ! Pong(probe.ref)
-      probe.expectMessage(Ping(pinger.ref))
+      probe expectMessage Ping(pinger.ref)
     }
 
     "support mocking" in {
@@ -45,11 +45,11 @@ class AsyncTesting extends AnyWordSpec with Matchers with BeforeAndAfterAll:
       val playerMock = testKit.spawn(Behaviors.monitor(playerProbe.ref, playerMockBehavior))
       for (i <- 0 until NUM_ATTEMPTS - 1) do
         playerMock ! NewInput
-        playerProbe.expectMessage(NewInput)
-        playerProbe.expectMessage(NotGuessed(TooSmall(BAD_GUESS), NUM_ATTEMPTS - 1 - i))
+        playerProbe expectMessage NewInput
+        playerProbe expectMessage NotGuessed(TooSmall(BAD_GUESS), NUM_ATTEMPTS - 1 - i)
 
       playerMock ! NewInput
-      playerProbe.expectMessage(NewInput)
+      playerProbe expectMessage NewInput
       playerProbe.expectMessageType[Loss.type]
     }
   }
