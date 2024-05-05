@@ -1,6 +1,5 @@
 package it.unibo.pcd.akka.basics.e02oopstyle
 
-import akka.actor.PoisonPill
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
 
