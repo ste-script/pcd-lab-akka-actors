@@ -24,7 +24,7 @@ object GuessGame:
   export Hint.*
 
   object game:
-    def apply(numberToGuess: Int, numberOfAttempts: Int = 10): Behavior[Guess] = Behaviors.receive {
+    def apply(numberToGuess: Int, numberOfAttempts: Int = 10): Behavior[Guess] = Behaviors.receive:
       (context, msg: Guess) =>
         if (msg.number == numberToGuess)
           context.log.info(s"You guessed correctly my secret: $numberToGuess. Game ends here.")
@@ -45,14 +45,13 @@ object GuessGame:
           else
             context.log.info("You finished your attempts. Game ends here.")
             Behaviors.stopped
-    }
 
   object player:
     def apply(
         game: ActorRef[Guess],
         guessLogic: Seq[Hint] => Int,
         hints: Seq[Hint] = Seq.empty
-    ): Behavior[PlayerMessage] = Behaviors.receive[PlayerMessage] { (context, msg) =>
+    ): Behavior[PlayerMessage] = Behaviors.receive[PlayerMessage]: (context, msg) =>
       msg match
         case NewInput =>
           val guess = guessLogic(hints)
@@ -66,7 +65,6 @@ object GuessGame:
           context.log.info(s"$hint.. Ouch! But I still have $remainingAttempts attempts..")
           context.self ! NewInput
           player(game, guessLogic, hints :+ hint)
-    }
 
   def humanPlayer(game: ActorRef[Guess]): Behavior[PlayerMessage] =
     player(game, hints => readLine(s"Last hint: ${hints.lastOption}\nGuess: ").toInt)
@@ -85,10 +83,9 @@ object GuessGame:
     player(
       game,
       hints =>
-        hints.lastOption.foreach {
+        hints.lastOption.foreach:
           case TooSmall(attempt) => bounds = BoundedInterval(Math.max(bounds.lb, attempt + 1), bounds.ub)
           case TooBig(attempt) => bounds = BoundedInterval(bounds.lb, Math.min(bounds.ub, attempt - 1))
-        }
         bounds.lb + scala.util.Random.nextInt(bounds.ub - bounds.lb + 1)
     )
 end GuessGame
@@ -97,7 +94,7 @@ object GuessNumberMain extends App:
   case object StartPlay
 
   val system = ActorSystem(
-    Behaviors.receive[StartPlay.type] { (context, _) =>
+    Behaviors.receive[StartPlay.type]: (context, _) =>
       context.log.info("Starting a game.")
       val game = context.spawn(GuessGame.game(scala.util.Random.nextInt(100), numberOfAttempts = 5), "guess-listener")
       val player = context.spawn(
@@ -107,7 +104,7 @@ object GuessNumberMain extends App:
       )
       player ! GuessGame.NewInput
       Behaviors.same
-    },
+    ,
     "hello-world-akka-system"
   )
   system ! StartPlay

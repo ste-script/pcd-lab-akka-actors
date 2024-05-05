@@ -17,10 +17,10 @@ class PingPonger(context: ActorContext[PingPong], var bounces: Int = 10) extends
 
   override def onMessage(msg: PingPong): Behavior[PingPong] =
     bounces -= 1
-    if (bounces < 0) {
+    if (bounces < 0)
       context.log.info("I got tired of pingpong-ing. Bye bye.")
       Behaviors.stopped
-    } else {
+    else
       msg match
         case Pong(replyTo) =>
           context.log.info("Pong")
@@ -29,7 +29,6 @@ class PingPonger(context: ActorContext[PingPong], var bounces: Int = 10) extends
           context.log.info("Ping")
           context.scheduleOnce(1.second, replyTo, Pong(context.self))
       this
-    }
 
 object PingPongMainSimple extends App:
   val system = ActorSystem[PingPong](Behaviors.setup(new PingPonger(_)), "ping-pong")
@@ -41,7 +40,7 @@ object PingPongMainSimple extends App:
   */
 object PingPongMain extends App:
   val system = ActorSystem(
-    Behaviors.setup[PingPong] { ctx =>
+    Behaviors.setup[PingPong]: ctx =>
       // Child actor creation
       val pingponger = ctx.spawn(Behaviors.setup[PingPong](ctx => new PingPonger(ctx, 5)), "ping-ponger")
       // Watching child
@@ -56,7 +55,7 @@ object PingPongMain extends App:
           ctx.log.info("PingPonger terminated. Shutting down")
           Behaviors.stopped // Or Behaviors.same to continue
         }
-    },
+    ,
     "ping-pong"
   )
   system.log.info(s"System root path: ${system.path.root}")

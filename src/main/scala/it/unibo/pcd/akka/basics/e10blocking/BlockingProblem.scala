@@ -8,32 +8,36 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
 object BlockingProblem:
-  def apply(i: Int): Behavior[String] = Behaviors.receive { case (ctx, any) =>
-    println(s"actors $i")
-    Thread.sleep(5000)
-    Behaviors.same
-  }
-  def usingFuture(i: Int): Behavior[String] = Behaviors.receive { case (ctx, any) =>
-    given ExecutionContext = ctx.executionContext
-    Future { Thread.sleep(5000); println(s"done $i") }
-    ctx.log.info(s"actors $i")
-    Behaviors.same
-  }
-  def usingDispatcher(i: Int, dispatcher: String): Behavior[String] = Behaviors.receive { case (ctx, any) =>
-    given ExecutionContext = ctx.system.dispatchers.lookup(DispatcherSelector.fromConfig(dispatcher))
-    Future { Thread.sleep(5000); println(s"done $i") }
-    ctx.log.info(s"actors $i")
-    Behaviors.same
-  }
+  def apply(i: Int): Behavior[String] = Behaviors.receive:
+    case (ctx, any) =>
+      println(s"actors $i")
+      Thread.sleep(5000)
+      Behaviors.same
+
+  def usingFuture(i: Int): Behavior[String] = Behaviors.receive:
+    case (ctx, any) =>
+      given ExecutionContext = ctx.executionContext
+      Future { Thread.sleep(5000); println(s"done $i") }
+      ctx.log.info(s"actors $i")
+      Behaviors.same
+
+  def usingDispatcher(i: Int, dispatcher: String): Behavior[String] = Behaviors.receive:
+    case (ctx, any) =>
+      given ExecutionContext = ctx.system.dispatchers.lookup(DispatcherSelector.fromConfig(dispatcher))
+      Future:
+        Thread.sleep(5000); println(s"done $i")
+      ctx.log.info(s"actors $i")
+      Behaviors.same
+
 
 object Spawner:
   def apply(factory: Int => Behavior[String]): Behavior["spawn"] =
     var start = 0
-    Behaviors.receive { (ctx, _) =>
-      start to start + 50 foreach (i => ctx.spawnAnonymous(factory(i)) ! "")
-      start = 50
-      Behaviors.same
-    }
+    Behaviors.receive:
+      (ctx, _) =>
+        start to start + 50 foreach (i => ctx.spawnAnonymous(factory(i)) ! "")
+        start = 50
+        Behaviors.same
 @main def problem: Unit =
   val spawner = ActorSystem.create(Spawner(BlockingProblem.usingFuture), "slow")
   spawner ! "spawn"

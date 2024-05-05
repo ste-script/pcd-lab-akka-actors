@@ -10,8 +10,7 @@ object Node:
     case MoveTo(x: Double, y: Double)
     case Stop
   export Command.*
-  def apply(): Behavior[Command] = Behaviors.setup { ctx =>
-    {
+  def apply(): Behavior[Command] = Behaviors.setup: ctx =>
       Behaviors.withStash[Command](100) { stash =>
         Behaviors.receiveMessage {
           case Start(x, y) =>
@@ -23,16 +22,13 @@ object Node:
             Behaviors.same
         }
       }
-    }
-  }
 
-  def initialised(position: (Double, Double)): Behavior[Command] = Behaviors.receive {
+  def initialised(position: (Double, Double)): Behavior[Command] = Behaviors.receive:
     case (ctx, MoveTo(x, y)) =>
       ctx.log.info(s"Move to => $x, $y")
       initialised(x, y)
     case (ctx, Stop) => Behaviors.stopped
     case _ => Behaviors.same
-  }
 
 @main def checkStash(): Unit =
   val system = ActorSystem(Node(), "node")

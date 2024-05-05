@@ -18,8 +18,7 @@ object SpawningProtocol extends App:
   given Scheduler = system.scheduler // for ask pattern
   given Timeout = Timeout(3.seconds) // for ask pattern
 
-  def pongerBehavior: Behavior[Ping.type] = Behaviors.receive[Ping.type] { (ctx, _) =>
+  def pongerBehavior: Behavior[Ping.type] = Behaviors.receive[Ping.type]: (ctx, _) =>
     ctx.log.info("pong"); Behaviors.stopped
-  }
   val ponger: Future[ActorRef[Ping.type]] = system.ask(SpawnProtocol.Spawn(pongerBehavior, "ponger", Props.empty, _))
   for (pongerRef <- ponger) pongerRef ! Ping

@@ -9,11 +9,10 @@ object HelloActor:
   final case class Greet(whom: String, replyTo: ActorRef[Greeted])
   final case class Greeted(whom: String, from: ActorRef[Greet])
   // Behaviour factory, i.e how the actor react to messages
-  def apply(): Behavior[Greet] = Behaviors.receive { (context, message) =>
+  def apply(): Behavior[Greet] = Behaviors.receive: (context, message) =>
     context.log.info("Hello {}!", message.whom)
     message.replyTo ! Greeted(message.whom, context.self)
     Behaviors.same
-  }
 
 object HelloWorldAkkaTyped extends App:
   val system: ActorSystem[HelloActor.Greet] = ActorSystem(HelloActor(), name = "hello-world")
