@@ -7,4 +7,3 @@ case class DrawableRectangle(x: Int, y: Int, width: Int, height: Int, color: Col
   override def draw(graphic: Graphics2D): Unit =
     graphic.setColor(color)
     graphic.fillRect(x, y, width, height)
-

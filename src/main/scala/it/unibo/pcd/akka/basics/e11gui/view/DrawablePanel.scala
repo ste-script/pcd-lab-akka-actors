@@ -14,8 +14,8 @@ class SimpleDrawablePanel extends Panel with DrawablePanel[Graphics2D] {
     Swing.onEDT(repaint())
 
   override def whenClicked(listener: (Int, Int) => Unit): Unit =
-    reactions += {
-      case MousePressed(_, point, _, _, _) => listener(point.x, point.y)
+    reactions += { case MousePressed(_, point, _, _, _) =>
+      listener(point.x, point.y)
     }
   // Custom painting of all elements
   override def paintComponent(g: Graphics2D): Unit =

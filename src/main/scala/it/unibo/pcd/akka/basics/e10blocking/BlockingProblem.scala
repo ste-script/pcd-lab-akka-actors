@@ -29,15 +29,13 @@ object BlockingProblem:
       ctx.log.info(s"actors $i")
       Behaviors.same
 
-
 object Spawner:
   def apply(factory: Int => Behavior[String]): Behavior["spawn"] =
     var start = 0
-    Behaviors.receive:
-      (ctx, _) =>
-        start to start + 50 foreach (i => ctx.spawnAnonymous(factory(i)) ! "")
-        start = 50
-        Behaviors.same
+    Behaviors.receive: (ctx, _) =>
+      start to start + 50 foreach (i => ctx.spawnAnonymous(factory(i)) ! "")
+      start = 50
+      Behaviors.same
 @main def problem: Unit =
   val spawner = ActorSystem.create(Spawner(BlockingProblem.usingFuture), "slow")
   spawner ! "spawn"

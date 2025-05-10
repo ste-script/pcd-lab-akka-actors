@@ -23,10 +23,10 @@ class PingPonger(context: ActorContext[PingPong], var bounces: Int = 10) extends
       msg match
         case Pong(replyTo) =>
           context.log.info("Pong")
-          context.scheduleOnce(1.second, replyTo, Ping(context.self))
+          replyTo ! Ping(context.self)
         case Ping(replyTo) =>
           context.log.info("Ping")
-          context.scheduleOnce(1.second, replyTo, Pong(context.self))
+          replyTo ! Pong(context.self)
       this
 
 object PingPongMainSimple extends App:

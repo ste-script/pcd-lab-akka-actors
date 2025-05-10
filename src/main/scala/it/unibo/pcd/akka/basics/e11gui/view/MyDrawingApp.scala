@@ -13,7 +13,6 @@ object MyDrawingApp extends SimpleSwingApplication {
 
     // Adding some rectangles to the panel
 
-
   panel.addElement(DrawableRectangle(10, 10, 100, 50, Color.red))
   panel.addElement(DrawableRectangle(50, 70, 150, 100, Color.blue))
 

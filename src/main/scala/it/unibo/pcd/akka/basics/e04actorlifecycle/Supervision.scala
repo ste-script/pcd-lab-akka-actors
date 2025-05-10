@@ -30,47 +30,26 @@ object SupervisionExampleStop extends App:
   val system = ActorSystem[String](SupervisedActor(SupervisorStrategy.stop), "supervision")
   for (cmd <- List("foo", "bar", "fail", "!!!", "fail", "quit")) system ! cmd
 
-object SupervisionExampleParent extends App:
-  val system = ActorSystem(
+// A simple watching example
+object WatchingExample extends App:
+  val system = ActorSystem[String](
     Behaviors.setup[String]: ctx =>
-      val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
-      Behaviors.receiveMessage: msg =>
-        child ! msg
-        Behaviors.same
-    ,
-    "supervision"
-  )
-  for (cmd <- List("foo", "bar", "fail", "!!!", "fail", "quit")) system ! cmd
-
-object SupervisionExampleParentWatching extends App:
-  val system = ActorSystem(
-    Behaviors.setup[String]: ctx =>
-      val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
-      ctx.watch(child) // watching child (if Terminated not handled => dead pact)
-      Behaviors.receiveMessage[String]: msg =>
-        child ! msg
-        Behaviors.same
-    ,
-    "supervision"
-  )
-  for (cmd <- List("foo", "bar", "fail", "!!!", "fail", "quit")) system ! cmd
-
-object SupervisionExampleParentWatchingHandled extends App:
-  val system = ActorSystem(
-    Behaviors.setup[String]: ctx =>
-      val child = ctx.spawn(SupervisedActor(SupervisorStrategy.stop), "fallibleChild")
+      val child = ctx.spawn(SupervisedActor(SupervisorStrategy.restart), "child")
       ctx.watch(child)
-      Behaviors
-        .receiveMessage[String] { msg =>
-          child ! msg
+      Behaviors.receiveMessage:
+        case "kill" =>
+          ctx.log.info("Killing child")
+          ctx.stop(child)
           Behaviors.same
-        }
-        .receiveSignal { case (ctx, Terminated(ref)) =>
-          ctx.log.info(s"Child ${ref.path} terminated")
-          Behaviors.ignore
-        }
+        case "quit" =>
+          ctx.log.info("Quitting")
+          Behaviors.same
+        case other =>
+          ctx.log.info(other)
+          Behaviors.stopped
     ,
-    "supervision"
+    "watching"
   )
 
-  for (cmd <- List("foo", "bar", "fail", "!!!", "fail", "quit")) system ! cmd
+  system ! "kill"
+  system ! "quit"

@@ -52,7 +52,6 @@ object Chopstick:
         // but can be omitted when Behaviors.receiveMessagePartial is in use
         Behaviors.unhandled
 
-
   // When a Chopstick is available, it can be taken by a hakker
   private def available(): Behavior[ChopstickMessage] =
     Behaviors.receivePartial:
@@ -94,7 +93,6 @@ class Hakker(
         ctx.log.info("{} starts to think", name)
         startThinking(ctx, 5.seconds)
 
-
   // When a hakker is thinking it can become hungry
   // and try to pick up its chopsticks and eat
   private val thinking: Behavior[Command] =
@@ -103,7 +101,6 @@ class Hakker(
         left ! Chopstick.Take(adapter)
         right ! Chopstick.Take(adapter)
         hungry
-
 
   // When a hakker is hungry it tries to pick up its chopsticks and eat
   // When it picks one up, it goes into wait for the other
@@ -119,7 +116,6 @@ class Hakker(
 
       case HandleChopstickAnswer(Busy(_)) =>
         firstChopstickDenied
-
 
   // When a hakker is waiting for the last chopstick it can either obtain it
   // and start eating, or the other chopstick was busy, and the hakker goes
@@ -142,7 +138,6 @@ class Hakker(
         takenChopstick ! Put(adapter)
         startThinking(ctx, 10.milliseconds)
 
-
   // When a hakker is eating, he can decide to start to think,
   // then he puts down his chopsticks and starts to think
   private lazy val eating: Behavior[Command] =
@@ -152,7 +147,6 @@ class Hakker(
         left ! Put(adapter)
         right ! Put(adapter)
         startThinking(ctx, 5.seconds)
-
 
   // When the results of the other grab comes back,
   // he needs to put it back if he got the other one.
@@ -165,19 +159,15 @@ class Hakker(
       case HandleChopstickAnswer(Busy(_)) =>
         startThinking(ctx, 10.milliseconds)
 
-
   private def startThinking(ctx: ActorContext[Command], duration: FiniteDuration) =
-    Behaviors.withTimers[Command]:
-      timers =>
-        timers.startSingleTimer(Eat, Eat, duration)
-        thinking
-
+    Behaviors.withTimers[Command]: timers =>
+      timers.startSingleTimer(Eat, Eat, duration)
+      thinking
 
   private def startEating(ctx: ActorContext[Command], duration: FiniteDuration) =
-    Behaviors.withTimers[Command]:
-      timers =>
-        timers.startSingleTimer(Think, Think, duration)
-        eating
+    Behaviors.withTimers[Command]: timers =>
+      timers.startSingleTimer(Think, Think, duration)
+      eating
 end Hakker
 
 object DiningHakkers:
@@ -189,15 +179,14 @@ object DiningHakkers:
         yield context.spawn(Chopstick(), "Chopstick" + i)
 
     // Create 5 awesome hakkers and assign them their left and right chopstick
-    val hakkers = for
-      (name, i) <- List("Ghosh", "Boner", "Klang", "Krasser", "Manie").zipWithIndex
-    yield context.spawn(Hakker(name, chopsticks(i), chopsticks((i + 1) % totalChopsticks)), name)
+    val hakkers =
+      for (name, i) <- List("Ghosh", "Boner", "Klang", "Krasser", "Manie").zipWithIndex
+      yield context.spawn(Hakker(name, chopsticks(i), chopsticks((i + 1) % totalChopsticks)), name)
 
     // Signal all hakkers that they should start thinking, and watch the show
     hakkers.foreach(_ ! Hakker.Think)
 
     Behaviors.empty
-
 
   def main(args: Array[String]): Unit =
     ActorSystem(DiningHakkers(), "DiningHakkers")

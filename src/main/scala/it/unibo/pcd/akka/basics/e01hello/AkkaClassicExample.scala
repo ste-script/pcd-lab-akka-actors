@@ -10,7 +10,7 @@ class MyActor(val tag: String) extends Actor with ActorLogging: // actors extend
   }
 
 object MyActor:
-    def apply(tag: String): MyActor = new MyActor(tag) // factory method
+  def apply(tag: String): MyActor = new MyActor(tag) // factory method
 
 def inContextOf(actor: ActorRef)(block: ActorRef ?=> Unit): Unit = // using clause
   given ActorRef = actor

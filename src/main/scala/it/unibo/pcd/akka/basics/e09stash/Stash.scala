@@ -11,17 +11,17 @@ object Node:
     case Stop
   export Command.*
   def apply(): Behavior[Command] = Behaviors.setup: ctx =>
-      Behaviors.withStash[Command](100) { stash =>
-        Behaviors.receiveMessage {
-          case Start(x, y) =>
-            ctx.log.info(s"Started!! $x, $y")
-            stash.unstashAll(initialised(x, y))
-          case other =>
-            ctx.log.info(s"Not already initialised, $other in stash")
-            stash.stash(other)
-            Behaviors.same
-        }
+    Behaviors.withStash[Command](100) { stash =>
+      Behaviors.receiveMessage {
+        case Start(x, y) =>
+          ctx.log.info(s"Started!! $x, $y")
+          stash.unstashAll(initialised(x, y))
+        case other =>
+          ctx.log.info(s"Not already initialised, $other in stash")
+          stash.stash(other)
+          Behaviors.same
       }
+    }
 
   def initialised(position: (Double, Double)): Behavior[Command] = Behaviors.receive:
     case (ctx, MoveTo(x, y)) =>
